@@ -181,34 +181,14 @@ function buildTimemapUrl(rawUrl: string) {
   return `https://web.archive.org/web/timemap/json?${params.toString()}`;
 }
 
-function buildTimemapHeaders(targetUrl: string): Record<string, string> {
-  const referer = `https://web.archive.org/web/*/${targetUrl}*`;
-  return {
-    accept: "application/json, text/javascript, */*; q=0.01",
-    "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-    priority: "u=1, i",
-    referer,
-    "sec-ch-ua": '"Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"macOS"',
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-origin",
-    "user-agent":
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-    "x-requested-with": "XMLHttpRequest",
-  };
-}
-
 async function fetchSnapshots(targetUrl: string): Promise<Snapshot[]> {
   const timemapUrl = buildTimemapUrl(targetUrl);
-  const headers = buildTimemapHeaders(targetUrl);
   console.log("[search-web-archive] request url:", targetUrl);
   console.log("[search-web-archive] timemap url:", timemapUrl);
 
   let response: Response;
   try {
-    response = await fetch(timemapUrl, { headers });
+    response = await fetch(timemapUrl);
   } catch (error) {
     console.log("[search-web-archive] fetch error:", error);
     throw new Error(`Network error when requesting timemap: ${error instanceof Error ? error.message : String(error)}`);
