@@ -55,7 +55,6 @@ export default function SearchWebArchive() {
       setIsLoading(true);
       try {
         const result = await fetchPages(searchText);
-        console.log("[search-pages] setSnapshots result length:", result.length);
         if (!cancelled) {
           const initialSnapshots = result.slice(0, PAGE_SIZE);
           allSnapshotsRef.current = result;
@@ -184,8 +183,6 @@ function buildTimemapUrl(rawUrl: string) {
 
 async function fetchPages(targetUrl: string): Promise<Snapshot[]> {
   const timemapUrl = buildTimemapUrl(targetUrl);
-  console.log("[search-pages] request url:", targetUrl);
-  console.log("[search-pages] timemap url:", timemapUrl);
 
   let response: Response;
   try {
@@ -195,27 +192,21 @@ async function fetchPages(targetUrl: string): Promise<Snapshot[]> {
     throw new Error(`Network error when requesting timemap: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  console.log("[search-pages] response status:", response.status, response.statusText);
-
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status} ${response.statusText}`);
   }
 
   const data = (await response.json()) as unknown;
-  console.log("[search-pages] raw json data:", data);
 
   if (!Array.isArray(data) || data.length < 2) {
-    console.log("[search-pages] invalid data format or empty data");
     return [];
   }
 
   const rows = data.slice(1) as unknown[];
-  console.log("[search-pages] rows length:", rows.length);
 
   const snapshots = rows
     .map((row) => {
       if (!Array.isArray(row) || row.length < 6) {
-        console.log("[search-pages] skip invalid row:", row);
         return null;
       }
       const [original, mimetype, timestamp, endtimestamp, groupcount, uniqcount] = row as string[];
@@ -223,8 +214,6 @@ async function fetchPages(targetUrl: string): Promise<Snapshot[]> {
     })
     .filter((item): item is Snapshot => Boolean(item));
   // .sort((a, b) => b.endtimestamp.localeCompare(a.endtimestamp));
-
-  console.log("[search-pages] parsed snapshots:", snapshots);
 
   return snapshots;
 }
