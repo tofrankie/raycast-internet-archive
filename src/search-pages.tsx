@@ -176,14 +176,18 @@ function buildUrls(snapshot: Snapshot) {
   // snapshotUrl points to a specific archived capture.
   // calendarUrl opens the Wayback calendar view for pages with multiple captures.
 
-  let displayUrl = snapshot.original;
-  try {
-    displayUrl = decodeURI(snapshot.original);
-  } catch {}
+  const { original, timestamp } = snapshot;
 
-  // timestamp === endtimestamp
-  const snapshotUrl = `/web/${snapshot.timestamp}/${snapshot.original}`;
-  const calendarUrl = `/web/${snapshot.timestamp}*/${snapshot.original}`;
+  let displayUrl = "";
+  try {
+    displayUrl = decodeURI(original);
+  } catch {
+    displayUrl = original;
+  }
+
+  // timestamp === endtimestamp, means there is only one snapshot
+  const snapshotUrl = `/web/${timestamp}/${original}`;
+  const calendarUrl = `/web/${timestamp}*/${original}`;
 
   return {
     displayUrl,
